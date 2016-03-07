@@ -5,10 +5,12 @@ import urllib2
 if len(sys.argv) != 2:
     sys.exit('Usage: python gh-index.py <username>')
 
-data = urllib2.urlopen("https://api.github.com/users/%s/repos" % sys.argv[1])
+data = urllib2.urlopen("https://api.github.com/users/%s/repos?per_page=100"
+                       % sys.argv[1])
 
-repolist = [] 
-valueslist = [] 
+repolist = []
+countlist = []
+finallist = []
 readdata = data.read()
 jsondata = json.loads(readdata)
 
@@ -17,20 +19,31 @@ for repo in jsondata:
         if k == "stargazers_count":
             repolist.append(v)
 
-print repolist
+if len(repolist) == 100:
+    sys.exit('You have more than 100 repositories. \
+This tool won\'t work correctly with that many repos.')
 
-def hcount(n):
-    hcountnum = 0
+print "\n" + sys.argv[1] + "\'s stars:\n" + \
+      str(sorted(repolist, reverse=True)) + "\n"
+
+
+def count(n):
+    count = 0
     for item in repolist:
-        if n >= item:
-            hcountnum += 1
-            print "hcount added"
-    return hcountnum
+        if item == 0:
+            pass
+        elif n >= item:
+            count += 1
+    countlist.append(count)
+
 
 for item in repolist:
-    itemcount = hcount(item)
-    print "next item"
-    valueslist.append(itemcount) 
+    count(item)
 
-print valueslist
-#print sys.argv[1] + ", your gh-index is " + str(max(valueslist))
+d = dict(zip(repolist, countlist))
+
+for k, v in d.iteritems():
+    if k <= v:
+        finallist.append(k)
+
+print sys.argv[1] + ", your gh-index is " + str(max(finallist)) + "\n"
