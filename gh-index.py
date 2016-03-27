@@ -1,7 +1,7 @@
 import json
 import sys
 import urllib2
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
@@ -12,7 +12,9 @@ def index():
 
 @app.route('/calculate')
 def calculate():
-	data = urllib2.urlopen("https://api.github.com/users/MarkEEaton/repos?per_page=100")
+	requestdata = request.args.get("a")
+	data = urllib2.urlopen("https://api.github.com/users/%s/repos?per_page=100"\
+	% requestdata)
 
 	repolist = []
 	countlist = []

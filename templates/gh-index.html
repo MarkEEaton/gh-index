@@ -13,7 +13,9 @@
 	<script type="text/javascript">
 		$(function() {
 			var submit_form = function(e) {
-				$.getJSON("/calculate", function(data) {
+				$.getJSON("/calculate", {
+					a: $('input[name="username"]').val()
+					}, function(data) {
 					$("#result").text(data.result);
 				});
 			};
