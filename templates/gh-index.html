@@ -1,0 +1,23 @@
+<!doctype html>
+<head>
+	<title>Find a gh-index</title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+</head>
+<body>
+	<h1>test</h1>
+	<p>
+		<input type="text" name="username">
+		<span id="result"></span>
+	</p>
+	<p><a href=# id="calculate">Calculate!</a></p>
+	<script type="text/javascript">
+		$(function() {
+			var submit_form = function(e) {
+				$.getJSON("/calculate", function(data) {
+					$("#result").text(data.result);
+				});
+			};
+			$('a#calculate').on('click', submit_form);
+		});
+	</script>
+</body>

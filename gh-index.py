@@ -1,49 +1,56 @@
 import json
 import sys
 import urllib2
+from flask import Flask, render_template, jsonify
 
-if len(sys.argv) != 2:
-    sys.exit('Usage: python gh-index.py <username>')
-
-data = urllib2.urlopen("https://api.github.com/users/%s/repos?per_page=100"
-                       % sys.argv[1])
-
-repolist = []
-countlist = []
-finallist = []
-readdata = data.read()
-jsondata = json.loads(readdata)
-
-for repo in jsondata:
-    for k, v in repo.iteritems():
-        if k == "stargazers_count":
-            repolist.append(v)
-
-if len(repolist) == 100:
-    sys.exit('You have more than 100 repositories. \
-This tool won\'t work correctly with that many repos.')
-
-print "\n" + sys.argv[1] + "\'s stars:\n" + \
-      str(sorted(repolist, reverse=True)) + "\n"
+app = Flask(__name__)
 
 
-def count(n):
-    count = 0
-    for item in repolist:
-        if item == 0:
-            pass
-        elif n >= item:
-            count += 1
-    countlist.append(count)
+@app.route('/')
+def index():
+    return render_template("gh-index.html")
+
+@app.route('/calculate')
+def calculate():
+	data = urllib2.urlopen("https://api.github.com/users/MarkEEaton/repos?per_page=100")
+
+	repolist = []
+	countlist = []
+	finallist = []
+	readdata = data.read()
+	jsondata = json.loads(readdata)
+
+	for repo in jsondata:
+	    for k, v in repo.iteritems():
+	        if k == "stargazers_count":
+	            repolist.append(v)
+
+	if len(repolist) == 100:
+	    sys.exit('You have more than 100 repositories. \
+	This tool won\'t work correctly with that many repos.')
 
 
-for item in repolist:
-    count(item)
+	def count(n):
+	    count = 0
+	    for item in repolist:
+	        if item == 0:
+	            pass
+	        elif n >= item:
+	            count += 1
+	    countlist.append(count)
 
-d = dict(zip(repolist, countlist))
 
-for k, v in d.iteritems():
-    if k <= v:
-        finallist.append(k)
+	for item in repolist:
+	    count(item)
 
-print sys.argv[1] + ", your gh-index is " + str(max(finallist)) + "\n"
+	d = dict(zip(repolist, countlist))
+
+	for k, v in d.iteritems():
+	    if k <= v:
+	        finallist.append(k)
+
+	return jsonify(result=str(max(finallist)))
+
+
+if __name__ == '__main__':
+    app.run(port=8000, host='127.0.0.1', debug=True)
