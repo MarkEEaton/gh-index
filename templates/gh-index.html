@@ -2,14 +2,21 @@
 <head>
 	<title>Find a gh-index</title>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 </head>
 <body>
-	<h1>test</h1>
-	<p>
-		<input type="text" name="username">
-		<span id="result"></span>
+	<h1>gh-index : an h-index measure for github stars</h1>
+	<p>What is h-index? It's a measure of academic productivity.</p>
+	<p>Is it useful? Well sort of. You can read more about it <a href="https://en.wikipedia.org/wiki/H-index">on Wikipedia</a>.</p>
+	<p>I wanted to apply this measure to github stars, instead of academic citations. I've called the result the gh-index. It's not perfect. Authorship of open source software can be a bit more complicated than authorship of academic papers. But h-index was never a perfect measure to begin with. So take it for what you will. This tool will calculate the gh-index for any github user you'd like.</p><br>
+	<p> 
+	<form class="form-inline">
+	<div class="form-group">
+		<input type="text" class="form-control" name="username" placeholder="Github username"> 
+		<a href=# class="btn btn-default active" role="button" id="calculate">Calculate</a>
+	</div>
+	</form>
 	</p>
-	<p><a href=# id="calculate">Calculate!</a></p>
 	<script type="text/javascript">
 		$(function() {
 			var submit_form = function(e) {
@@ -22,4 +29,5 @@
 			$('a#calculate').on('click', submit_form);
 		});
 	</script>
+	<p>This user's gh-index is: <span id="result"></span> 
 </body>
