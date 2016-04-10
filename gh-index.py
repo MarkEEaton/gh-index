@@ -4,7 +4,7 @@ from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
-
+# load the html page
 @app.route('/')
 def index():
     return render_template("gh-index.html")
@@ -12,42 +12,46 @@ def index():
 
 @app.route('/calculate')
 def calculate():
-    requestdata = request.args.get("a")
-    data1 = urllib2.urlopen(
-        "https://api.github.com/users/%s/repos?per_page=100&page=1"
-        % requestdata)
-    data2 = urllib2.urlopen(
-        "https://api.github.com/users/%s/repos?per_page=100&page=2"
-        % requestdata)
-    data3 = urllib2.urlopen(
-        "https://api.github.com/users/%s/repos?per_page=100&page=3"
-        % requestdata)
 
+    # create some empty lists
+    data = []
     repolist = []
+    jsondata = []
     countlist = []
-    readdata1 = data1.read()
-    readdata2 = data2.read()
-    readdata3 = data3.read()
-    jsondata1 = json.loads(readdata1)
-    jsondata2 = json.loads(readdata2)
-    jsondata3 = json.loads(readdata3)
-    jsondata = jsondata1 + jsondata2 + jsondata3
 
-    for repo in jsondata:
-        for k, v in repo.iteritems():
-            if k == "stargazers_count" and v != 0:
-                repolist.append(v)
+    # take the input from the form and make the api call
+    # the api breaks results into pages. iterate through pages
+    requestdata = request.args.get("a")
+    for i in range(1, 3):
+        data.append(urllib2.urlopen(
+                    "https://api.github.com/users/{}/repos?per_page=100&page={}"
+                    .format(requestdata, i)))
 
+    # turn the api call data into json
+    for i in data:
+        jsondata.append(json.loads(i.read()))
+
+    # get the stargazers counts from the json
+    for call in jsondata:
+        for repo in call:
+            for k, v in repo.iteritems():
+                print(k, v)
+                if k == "stargazers_count" and v != 0:
+                    repolist.append(v)
+
+    # sometimes there are no stars :(
     if repolist == []:
         return jsonify(result="No stars found.")
     else:
         sortedlist = sorted(repolist)
 
+        # calculate the h-index
         print sortedlist
         for item in sortedlist:
             if len(sortedlist[sortedlist.index(item):]) >= item:
                 countlist.append(item)
 
+        # return the h-index value
         print countlist
         return jsonify(result=str(max(countlist)))
 
