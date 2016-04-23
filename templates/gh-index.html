@@ -26,7 +26,7 @@
 				$.getJSON("/calculate", {
 					a: $('input[name="username"]').val()
 					}, function(data) {
-					$("#result").text(data.result);
+					$("#result").text("This user's gh-index is: " + data.result);
 					$('#calculate').removeClass('btn btn-success disabled').addClass('btn btn-default active');
 					$('#calculate').text("Calculate again");
 				});
@@ -34,6 +34,6 @@
 			$('a#calculate').on('click', submit_form);
 		});
 	</script>
-	<p>This user's gh-index is: <span id="result"></span> 
+	<h2 id="result"></h2> 
 </div>
 </body>
