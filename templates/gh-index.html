@@ -13,7 +13,7 @@
 	<p> 
 	<form class="form-inline">
 	<div class="form-group">
-		<input type="text" class="form-control" name="username" placeholder="Github username"> 
+		<input id="on_enter" type="text" class="form-control" name="username" placeholder="Github username"> 
 		<a href=# class="btn btn-default active" role="button" id="calculate">Calculate</a>
 	</div>
 	</form>
@@ -32,6 +32,12 @@
 				});
 			};
 			$('a#calculate').on('click', submit_form);
+			$('#on_enter').keypress(function(e) {
+				if (e.which == 13) {
+					submit_form();
+					return false;
+					}
+				});
 		});
 	</script>
 	<h2 id="result"></h2> 
