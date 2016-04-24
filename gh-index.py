@@ -33,7 +33,7 @@ def calculate():
 
     # make the api call
     # the api breaks results into pages. iterate through pages
-    for i in range(1, 300):
+    for i in range(1, 4):
         try:
             data.append(urllib2.urlopen(
                 "https://api.github.com/users/{}/repos?per_page=100&page={}"
