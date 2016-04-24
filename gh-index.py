@@ -38,9 +38,13 @@ def calculate():
             data.append(urllib2.urlopen(
                 "https://api.github.com/users/{}/repos?per_page=100&page={}"
                 .format(user, i)))
-        except:
-            return jsonify(result="[error : api limit reached \
-                                   - please try again later]")
+        except Exception, e:
+            if e.code == 404:
+                return jsonify(result="[error : user not found]")
+            elif e.code == 403:
+                return jsonify(result="[error : api limit reached, try again later]")
+            else:
+                return jsonify(result="[error : " + str(e.code) + "]")
 
     # turn the api call data into json
     for i in data:
