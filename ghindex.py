@@ -1,10 +1,16 @@
+from __future__ import print_function
+
 import json
 import re
-import urllib2
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
 from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
+URLTEMPLATE = "https://api.github.com/users/{}/repos?per_page=100&page={}"
 
 # load the html page
 @app.route('/')
@@ -34,11 +40,10 @@ def calculate():
     # make the api call
     # the api breaks results into pages. iterate through pages
     for i in range(1, 4):
+        url = URLTEMPLATE.format(user, i)
         try:
-            data.append(urllib2.urlopen(
-                "https://api.github.com/users/{}/repos?per_page=100&page={}"
-                .format(user, i)))
-        except Exception, e:
+            data.append(urlopen(url))
+        except Exception as e:
             if e.code == 404:
                 return jsonify(result="[error : user not found]")
             elif e.code == 403:
@@ -48,12 +53,12 @@ def calculate():
 
     # turn the api call data into json
     for i in data:
-        jsondata.append(json.loads(i.read()))
+        jsondata.append(json.loads(i.read().decode('utf-8')))
 
     # get the stargazers counts from the json
     for call in jsondata:
         for repo in call:
-            for k, v in repo.iteritems():
+            for k, v in repo.items():
                 if k == "stargazers_count" and v != 0:
                     repolist.append(v)
 
@@ -64,7 +69,7 @@ def calculate():
         sortedlist = sorted(repolist)
 
         # calculate the h-index
-        print sortedlist
+        print(sortedlist)
         for item in sortedlist:
             remaininglist = len(sortedlist[sortedlist.index(item):])
             if remaininglist > item:
@@ -80,7 +85,7 @@ def calculate():
                     break
 
         # return the h-index value
-        print countlist
+        print(countlist)
         return jsonify(result=str(max(countlist)))
 
 if __name__ == '__main__':
