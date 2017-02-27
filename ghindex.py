@@ -4,7 +4,7 @@ import json
 import re
 try:
     from urllib2 import urlopen
-except ModuleNotFoundError:
+except ImportError:
     from urllib.request import urlopen
 from flask import Flask, render_template, jsonify, request
 
@@ -53,7 +53,7 @@ def calculate():
 
     # turn the api call data into json
     for i in data:
-        jsondata.append(json.loads(i.read()))
+        jsondata.append(json.loads(i.read().decode('utf-8')))
 
     # get the stargazers counts from the json
     for call in jsondata:
