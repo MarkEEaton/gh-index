@@ -31,9 +31,9 @@ def calculate():
     user = request.args.get("a")
     if len(user) > 30:
         return jsonify(result="[error : too many characters]")
-    elif re.compile(r'[^a-zA-Z0-9]').search(user):
+    elif re.compile(r'[^-a-zA-Z0-9]').search(user):
         return jsonify(result="[error : invalid characters \
-                               - use only A-Z and 0-9]")
+                               - use only A-Z, 0-9 and hyphen]")
     else:
         pass
 
