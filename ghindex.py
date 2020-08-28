@@ -2,6 +2,7 @@
 from __future__ import print_function
 import json
 import re
+
 try:
     from urllib2 import urlopen
 except ImportError:
@@ -13,23 +14,41 @@ app = Flask(__name__)
 
 URLTEMPLATE = "https://api.github.com/users/{}/repos?per_page=100&page={}"
 
+
 class SearchForm(Form):
     """ set up wtforms class """
-    keywords = StringField('query', [
-        validators.Length(max=30, message='[error : too many characters]'),
-        validators.Regexp(r'^[-a-zA-Z0-9]*$',
-                          message='[error : invalid characters. Use only A-Z,\
-                                   0-9, and hyphen]'),
-        validators.DataRequired(message='[error : you must type something]')])
+
+    keywords = StringField(
+        "query",
+        [
+            validators.Length(max=30, message="[error : too many characters]"),
+            validators.Regexp(
+                r"^[-a-zA-Z0-9]*$",
+                message="[error : invalid characters. Use only A-Z,\
+                                   0-9, and hyphen]",
+            ),
+            validators.DataRequired(message="[error : you must type something]"),
+        ],
+    )
+
+
+@app.after_request
+def add_security_headers(resp):
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["X-Frame-Options"] = "SAMEORIGIN"
+    resp.headers["X-XSS-Protection"] = "1; mode=block"
+    resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return resp
+
 
 # load the html page
-@app.route('/')
+@app.route("/")
 def index():
     """ load the index page """
     return render_template("gh-index.html")
 
 
-@app.route('/calculate')
+@app.route("/calculate")
 def calculate():
     """ do the calculations and return jsonified data """
 
@@ -54,13 +73,15 @@ def calculate():
                 if e.code == 404:
                     return jsonify(result="[error : user not found]")
                 elif e.code == 403:
-                    return jsonify(result="[error : api limit reached, try again later]")
+                    return jsonify(
+                        result="[error : api limit reached, try again later]"
+                    )
                 else:
                     return jsonify(result="[error : " + str(e.code) + "]")
 
         # turn the api call data into json
         for i in data:
-            jsondata.append(json.loads(i.read().decode('utf-8')))
+            jsondata.append(json.loads(i.read().decode("utf-8")))
 
         # get the stargazers counts from the json
         for call in jsondata:
@@ -77,7 +98,7 @@ def calculate():
 
             # calculate the h-index
             for item in sortedlist:
-                remaininglist = len(sortedlist[sortedlist.index(item):])
+                remaininglist = len(sortedlist[sortedlist.index(item) :])
                 if remaininglist > item:
                     countlist.append(item)
                 elif remaininglist == item:
@@ -94,7 +115,8 @@ def calculate():
             return jsonify(result=str(max(countlist)))
 
     else:
-        return jsonify(result=form.errors['keywords'][0])
+        return jsonify(result=form.errors["keywords"][0])
 
-if __name__ == '__main__':
-    app.run(port=8000, host='127.0.0.1')
+
+if __name__ == "__main__":
+    app.run(port=8000, host="127.0.0.1")
