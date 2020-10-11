@@ -1,12 +1,14 @@
 <!doctype html>
 <head>
 	<title>Find a gh-index</title>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	<script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="/static/default.css" />
+	<link rel="stylesheet" href="/static/bootstrap.min.css">
+	<script src="/static/jquery-3.5.1.min.js"></script>
+	<script src="/static/bootstrap.min.js"></script>
+	<script src="/static/default.js"></script>
 </head>
 <body>
-<div style=padding:20px>
+<div id="maindiv">
 	<h1>gh-index : an h-index measure for github stars</h1>
 	<p>What is h-index? It's a measure of academic productivity.</p>
 	<p>Is it useful? Well sort of. You can read more about it <a href="https://en.wikipedia.org/wiki/H-index">on Wikipedia</a>.</p>
@@ -15,32 +17,10 @@
 	<form class="form-inline" autocomplete="off">
 	<div class="form-group">
 		<input id="on_enter" type="text" class="form-control" name="username" placeholder="Github username"> 
-		<a style="margin-left: 10px;" class="btn btn-secondary active" role="button" id="calculate">Calculate</a>
+		<a class="btn btn-secondary active" role="button" id="calculate">Calculate</a>
 	</div>
 	</form>
 	</p>
-	<script type="text/javascript">
-		$(function() {
-			var submit_form = function(e) {
-				$('#calculate').removeClass('btn btn-default active').addClass('btn btn-success disabled');
-				$('#calculate').text("Calculating...");
-				$.getJSON("/calculate", {
-					a: $('input[name="username"]').val()
-					}, function(data) {
-					$("#result").text("This user's gh-index is: " + data.result);
-					$('#calculate').removeClass('btn btn-success disabled').addClass('btn btn-default active');
-					$('#calculate').text("Calculate again");
-				});
-			};
-			$('a#calculate').on('click', submit_form);
-			$('#on_enter').keypress(function(e) {
-				if (e.which == 13) {
-					submit_form();
-					return false;
-					}
-				});
-		});
-	</script>
 	<h2 id="result"></h2> 
 </div>
 </body>
