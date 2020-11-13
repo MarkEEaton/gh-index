@@ -12,13 +12,13 @@ class SearchForm(Form):
     keywords = StringField(
         "query",
         [
-            validators.Length(max=30, message="[error : too many characters]"),
+            validators.Length(max=30, message="[error : too many characters]."),
             validators.Regexp(
                 r"^[-a-zA-Z0-9]*$",
                 message="[error : invalid characters. Use only A-Z,\
-                                   0-9, and hyphen]",
+                        0-9, and hyphen]."
             ),
-            validators.DataRequired(message="[error : you must type something]"),
+            validators.DataRequired(message="[error : you must type something]."),
         ],
     )
 
@@ -63,12 +63,12 @@ def calculate():
                 return
             elif resp.status_code == 403:
                 return jsonify(
-                    result="[error : api limit reached, try again later]", count=0
+                    result="[error : api limit reached, try again later].", count=0
                 )
             elif resp.status_code == 404:
-                return jsonify(result="[error : user not found]", count=0)
+                return jsonify(result="[error : user not found].", count=0)
             else:
-                return jsonify(result="[error : " + str(resp.status_code) + "]", count=0)
+                return jsonify(result="[error : " + str(resp.status_code) + "].", count=0)
 
         resp = requests.get("https://api.github.com/users/" + user + "/repos?per_page=100&page=1") 
         result = try_append(resp)
