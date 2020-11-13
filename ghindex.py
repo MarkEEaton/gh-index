@@ -110,7 +110,7 @@ def calculate():
                         break
 
             # return the h-index value
-            return jsonify(result=str(max(countlist)), count=str(star_count))
+            return jsonify(result=str(max(countlist)) + ".", count=str(star_count))
 
     else:
         return jsonify(result=form.errors["keywords"][0])
