@@ -1,18 +1,9 @@
 """ gh-index """
-from __future__ import print_function
-import json
-import re
-
-try:
-    from urllib2 import urlopen
-except ImportError:
-    from urllib.request import urlopen
+import requests
 from flask import Flask, render_template, jsonify, request, url_for, redirect
 from wtforms import Form, StringField, validators
 
 app = Flask(__name__)
-
-URLTEMPLATE = "https://api.github.com/users/{}/repos?per_page=100&page={}"
 
 
 class SearchForm(Form):
@@ -66,10 +57,9 @@ def calculate():
 
         # make the api call
         # the api breaks results into pages. iterate through pages
-        for i in range(1, 4):
-            url = URLTEMPLATE.format(user, i)
+        def try_append(resp):
             try:
-                data.append(urlopen(url))
+                data.append(resp.json())
             except Exception as e:
                 if e.code == 404:
                     return jsonify(result="[error : user not found]")
@@ -80,12 +70,15 @@ def calculate():
                 else:
                     return jsonify(result="[error : " + str(e.code) + "]")
 
-        # turn the api call data into json
-        for i in data:
-            jsondata.append(json.loads(i.read().decode("utf-8")))
+        resp = requests.get("https://api.github.com/users/" + user + "/repos?per_page=100&page=1") 
+        try_append(resp)
+        while resp.links.get('next'):
+            resp = requests.get(resp.links['next']['url'])
+            try_append(resp)
+
 
         # get the stargazers counts from the json
-        for call in jsondata:
+        for call in data:
             for repo in call:
                 for k, v in repo.items():
                     if k == "stargazers_count" and v != 0:
