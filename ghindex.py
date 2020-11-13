@@ -47,8 +47,8 @@ def calculate():
     # create some empty lists
     data = []
     repolist = []
-    jsondata = []
     countlist = []
+    star_count = 0
 
     # take the input and validate it
     user = request.args.get("a")
@@ -58,30 +58,34 @@ def calculate():
         # make the api call
         # the api breaks results into pages. iterate through pages
         def try_append(resp):
-            try:
+            if resp.status_code == 200:
                 data.append(resp.json())
-            except Exception as e:
-                if e.code == 404:
-                    return jsonify(result="[error : user not found]")
-                elif e.code == 403:
-                    return jsonify(
-                        result="[error : api limit reached, try again later]"
-                    )
-                else:
-                    return jsonify(result="[error : " + str(e.code) + "]")
+                return
+            elif resp.status_code == 403:
+                return jsonify(
+                    result="[error : api limit reached, try again later]", count=0
+                )
+            elif resp.status_code == 404:
+                return jsonify(result="[error : user not found]", count=0)
+            else:
+                return jsonify(result="[error : " + str(resp.status_code) + "]", count=0)
 
         resp = requests.get("https://api.github.com/users/" + user + "/repos?per_page=100&page=1") 
-        try_append(resp)
+        result = try_append(resp)
         while resp.links.get('next'):
             resp = requests.get(resp.links['next']['url'])
-            try_append(resp)
+            result = try_append(resp)
 
+        # if there is an error, return it
+        if result:
+            return result
 
         # get the stargazers counts from the json
         for call in data:
             for repo in call:
                 for k, v in repo.items():
                     if k == "stargazers_count" and v != 0:
+                        star_count += int(v)
                         repolist.append(v)
 
         # sometimes there are no stars :(
@@ -106,7 +110,7 @@ def calculate():
                         break
 
             # return the h-index value
-            return jsonify(result=str(max(countlist)))
+            return jsonify(result=str(max(countlist)), count=str(star_count))
 
     else:
         return jsonify(result=form.errors["keywords"][0])
